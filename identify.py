@@ -8,6 +8,12 @@ import subprocess
 import sys
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
+from aiy.voice.tts import say
+from aiy.vision.inference import CameraInference
+from aiy.vision.models import image_classification
+from picamera import PiCamera
+
+from aiy.board import Board, Led
 
 from click import prompt
 
@@ -15,12 +21,6 @@ ENDPOINT = "http://dgx03.ai.calpoly.edu:9300/v1/responses"
 MODEL = "qwen3.6-27b"
 IMAGE_PATH = "./photo.jpg"
 PROMPT = "Based on this camera view mounted to a person's head, describe 5 objects in a paragraph as if you were a machine that identifies objects to blind people. Be clearcut without words unrelated to the objects. Any objects that can't be fully identified because of blur should be ignored. If there are more than 5 objects, you can group similar or a pile of objects together. If you have less than five, you can exclude them. The description of the location of objects should always be relative the to the blind person"
-
-from aiy.vision.inference import CameraInference
-from aiy.vision.models import image_classification
-from picamera import PiCamera
-
-from aiy.board import Board, Led
 
 def make_request(api_key):
     with open(IMAGE_PATH, "rb") as image_file:
@@ -80,6 +80,7 @@ def main():
                 sys.exit("Error: " + str(error))
             message = response_text(response)
             print("Qwen says: " + message)
+            say(message)
             board.led.state = Led.OFF
 
 if __name__ == '__main__':
